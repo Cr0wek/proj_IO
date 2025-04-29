@@ -3,5 +3,5 @@ using namespace std;
 
 int main()
 {
-  cout<<"gdzie jest kubaaa">
+  cout<<"nie dziala>
 }
