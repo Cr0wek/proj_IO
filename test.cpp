@@ -3,5 +3,5 @@ using namespace std;
 
 int main()
 {
-  cout<<"dzikie wenże">
+  cout<<"gdzie jest kubaaa">
 }
