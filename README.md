@@ -1,2 +1,2 @@
 # proj_IO
-gdzie jest kuba?!?!
+gdzie jest kubaaaa?!?!
