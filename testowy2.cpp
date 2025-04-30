@@ -4,5 +4,5 @@ int main() {
     for (int i = 0; i < 5; ++i) {
         std::cout << i << std::endl;
     }
-    std::cout<<"Koniec"<<std::endl;
+    std::cout<<"Koniec tego programu"<<std::endl;
 }
