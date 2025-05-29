@@ -8,6 +8,6 @@ public class SimpleTest {
 
     @Test
     void testAddition() {
-        assertEquals(4, 2 + 2);
+        assertEquals(5, 2 + 2);
     }
 }
