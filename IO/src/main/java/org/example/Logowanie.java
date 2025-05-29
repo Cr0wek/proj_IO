@@ -6,11 +6,5 @@ public class Logowanie {
     public static void main(String[] args) {
         logger.info("IOIOIOIIOIOIOIOIOIOI time");
         logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
-        logger.info("IOIOIOIIOIOIOIOIOIOI time");
+
     }}
