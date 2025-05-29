@@ -1,8 +1,8 @@
 package org.example;
 import java.util.logging.Logger;
 
-public class logowanie {
-    private static final Logger logger = Logger.getLogger(logowanie.class.getName());
+public class Logowanie {
+    private static final Logger logger = Logger.getLogger(Logowanie.class.getName());
     public static void main(String[] args) {
         logger.info("Ruletka time, albo sie logujesz albo system32 sie usuwa");
         logger.info("wel to cwel");
