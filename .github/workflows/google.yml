@@ -60,7 +60,7 @@ jobs:
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ steps.get_ip.outputs.ip_address }} # Używamy dynamicznie pobranego IP
+          host: ${{ steps.get_ip.outputs.ip }} # Używamy dynamicznie pobranego IP
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
