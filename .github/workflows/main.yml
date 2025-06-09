@@ -1,0 +1,30 @@
+name: Build & Deploy Java App to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    name: Build and Run App on VM
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Build Java app with Maven
+        run: mvn clean package
+
+      - name: Stop previous instance (optional)
+        run: |
+          $app = Get-Process -Name java -ErrorAction SilentlyContinue
+          if ($app) {
+            Write-Output "Killing previous Java process"
+            Stop-Process -Name java -Force
+          }
+
+      - name: Run app
+        run: |
+          java -jar target/*.jar --server.port=8080 &
