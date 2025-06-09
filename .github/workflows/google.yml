@@ -1,0 +1,66 @@
+name: Build and Deploy to Google Cloud VM
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17' # Dopasuj do wersji Javy
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn -B package --file IO13/pom.xml
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-app
+          path: target/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: spring-boot-app
+
+      - name: Authenticate to Google Cloud
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Get VM IP Address
+        id: get_ip
+        uses: 'google-github-actions/get-gke-credentials@v2' # Ta akcja działa też do pobierania info o VM
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          location: ${{ secrets.VM_ZONE }}
+          instance_name: ${{ secrets.VM_INSTANCE_NAME }}
+          
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ steps.get_ip.outputs.ip_address }} # Używamy dynamicznie pobranego IP
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            # Zatrzymaj poprzednią wersję aplikacji, jeśli istnieje
+            pkill -f 'java -jar' || true
+            
+            # Skopiuj plik .jar na maszynę (w tym przypadku jest już w katalogu domowym)
+            # Uruchom aplikację w tle, przekierowując logi do pliku
+            nohup java -jar *.jar > app.log 2>&1 &
