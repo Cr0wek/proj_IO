@@ -43,30 +43,40 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # Dodaj ten krok, aby skonfigurować gcloud CLI
-      - name: Set up Cloud SDK
-        uses: 'google-github-actions/setup-gcloud@v2'
-
-      # To jest poprawny sposób na pobranie adresu IP maszyny wirtualnej
-      - name: Get VM IP Address
-        id: get_ip
-        run: |
-          IP_ADDRESS=$(gcloud compute instances describe ${{ secrets.VM_INSTANCE_NAME }} \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
-            --zone=${{ secrets.VM_ZONE }} \
-            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-          echo "ip=${IP_ADDRESS}" >> $GITHUB_OUTPUT
-          
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ steps.get_ip.outputs.ip }} # Używamy dynamicznie pobranego IP
-          username: ${{ secrets.VM_USERNAME }}
-          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          # Użyj sekretów SSH_HOST, SSH_USERNAME, SSH_PRIVATE_KEY
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          # Pliki do transferu: pobrany artefakt (JAR)
+          source: './*.jar' # Zakłada, że plik JAR jest w bieżącym katalogu po pobraniu artefaktu
+          #target: '/opt/my-springboot-app/' # Katalog docelowy na VM, upewnij się, że istnieje i masz do niego uprawnienia
+
           script: |
+            echo "Connected to VM. Deploying Spring Boot application..."
+
+            # Przejdź do katalogu aplikacji na VM
+            #cd /opt/my-springboot-app/
+
             # Zatrzymaj poprzednią wersję aplikacji, jeśli istnieje
-            pkill -f 'java -jar' || true
+            # Użyj 'pkill -f' do zabicia procesu Javy uruchomionego z konkretnego JAR-a
+            # lub 'sudo systemctl stop <nazwa_uslugi>' jeśli używasz systemd
+            sudo pkill -f 'java -jar /*.jar' || true
+            sleep 5 # Poczekaj na zakończenie procesu
+
+            # Usuń stary plik JAR (opcjonalne, ale dobra praktyka)
+            sudo rm -f *.jar
             
-            # Skopiuj plik .jar na maszynę (w tym przypadku jest już w katalogu domowym)
+            # (Plik JAR został już skopiowany przez 'source' i 'target' akcji ssh-action)
+            # Zmień nazwę pliku JAR na standardową, jeśli to konieczne
+            # mv TwojaNazwaApki-*.jar my-springboot-app.jar # Przykładowo
+
             # Uruchom aplikację w tle, przekierowując logi do pliku
+            # 'nohup' pozwoli aplikacji działać po zakończeniu sesji SSH
+            # Zmień 'twoja_nazwa_pliku.jar' na rzeczywistą nazwę pliku JAR po skopiowaniu
             nohup java -jar *.jar > app.log 2>&1 &
+            
+            echo "Deployment complete. Check /opt/my-springboot-app/app.log for status."
